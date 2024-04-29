@@ -2,13 +2,15 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\WelcomeController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
 // Endpoints API:
+
+use App\Http\Controllers\WelcomeController;
+
 // Accès publique page de connexion v1 :
 Route::get('/v1/welcome', [WelcomeController::class, 'apiIndex']);
 
@@ -41,10 +43,10 @@ Route::post('/v1/register', function () {
     return 'Endpoint pour l\'inscription d\'un nouvel utilisateur.';
 });
 
+use App\Http\Controllers\API\ProductController;
+
 // Products v1 :
-Route::get('/v1/products', function () {
-    return 'Récupérer la liste des produits.';
-});
+Route::apiResource('v1/products', ProductController::class);
 
 Route::get('/v1/products/{id}', function ($id) {
     return 'Récupérer un produit spécifique par son identifiant: ' . $id;
