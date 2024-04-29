@@ -51,10 +51,10 @@ Route::post('/v1/products', [ProductController::class, 'store']);
 Route::put('/v1/products/{product}', [ProductController::class, 'update']); // à revoir
 Route::delete('/v1/products/{product}', [ProductController::class, 'destroy']); // à revoir
 
+use App\Http\Controllers\API\CategoryController;
+
 // Catégories v1 :
-Route::get('/v1/categories', function () {
-    return 'Récupérer la liste des catégories.';
-});
+Route::apiResource('v1/categories', CategoryController::class);
 
 Route::get('/v1/categories/{id}', function ($id) {
     return 'Récupérer une catégorie spécifique par son identifiant: ' . $id;
