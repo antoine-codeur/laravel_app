@@ -27,5 +27,8 @@
                 </nav>
             @endif
         </header>
+        <main>
+            {{ $text }}
+        </main>
     </body>
 </html>
