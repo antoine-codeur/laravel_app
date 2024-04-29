@@ -47,22 +47,9 @@ use App\Http\Controllers\API\ProductController;
 
 // Products v1 :
 Route::apiResource('v1/products', ProductController::class);
-
-Route::get('/v1/products/{id}', function ($id) {
-    return 'Récupérer un produit spécifique par son identifiant: ' . $id;
-});
-
-Route::post('/v1/products', function () {
-    return 'Créer un nouveau produit.';
-});
-
-Route::put('/v1/products/{id}', function ($id) {
-    return 'Mettre à jour les informations d\'un produit existant: ' . $id;
-});
-
-Route::delete('/v1/products/{id}', function ($id) {
-    return 'Supprimer un produit existant: ' . $id;
-});
+Route::post('/v1/products', [ProductController::class, 'store']);
+Route::put('/v1/products/{product}', [ProductController::class, 'update']); // à revoir
+Route::delete('/v1/products/{product}', [ProductController::class, 'destroy']); // à revoir
 
 // Catégories v1 :
 Route::get('/v1/categories', function () {
