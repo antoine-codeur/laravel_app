@@ -10,7 +10,7 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        return Category::all();
+        return Category::with('products')->get();
     }
 
     public function store(Request $request)
@@ -26,7 +26,7 @@ class CategoryController extends Controller
 
     public function show(Category $category)
     {
-        return $category;
+        return $category->load('products');
     }
 
     public function update(Request $request, Category $category)

@@ -9,7 +9,7 @@ class ProductController extends Controller
 {
     public function index()
     {
-        return Product::all();
+        return Product::with('categories')->get();
     }
 
     public function store(Request $request)
@@ -26,7 +26,7 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
-        return $product;
+        return $product->load('categories');
     }
 
     public function update(Request $request, Product $product)
