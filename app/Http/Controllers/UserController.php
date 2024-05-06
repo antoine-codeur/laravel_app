@@ -2,47 +2,137 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
+use Laravel\Sanctum\NewAccessToken;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Get all users.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection|static[]
      */
     public function index()
     {
-        //
+        return User::all();
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Get a specific user by their ID.
+     *
+     * @param  int  $id
+     * @return \App\Models\User
      */
-    public function store(Request $request)
+    public function show($id)
     {
-        //
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+        return $user;
     }
 
     /**
-     * Display the specified resource.
+     * Update an existing user.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \App\Models\User
      */
-    public function show(string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+        $user->update($request->all());
+        return $user;
     }
 
     /**
-     * Update the specified resource in storage.
+     * Delete a user.
+     *
+     * @param  int  $id
+     * @return int
      */
-    public function update(Request $request, string $id)
+    public function destroy($id)
     {
-        //
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+        $user->delete();
+        return response()->json(['message' => 'User deleted successfully']);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Register a new user.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
      */
-    public function destroy(string $id)
+    public function register(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|confirmed|min:8',
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+        ]);
+
+        $token = $user->createToken($request->device_name);
+
+        return response()->json(['user' => $user, 'token' => $token->plainTextToken], 201);
+    }
+
+    /**
+     * Log in an existing user.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|string|email',
+            'password' => 'required|string',
+            'device_name' => 'required',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        $hashedPassword = bcrypt($request->password);
+        Log::info('Hashed password: ' . $hashedPassword);
+        Log::info('Stored password: ' . $user->password);
+        
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json(['error' => 'Invalid credentials'], 401);
+        }
+
+        $token = $user->createToken($request->device_name);
+
+        return response()->json(['user' => $user, 'token' => $token->plainTextToken]);
+    }
+
+    /**
+     * Log out the authenticated user.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+        return response()->json(['message' => 'Logged out successfully']);
     }
 }

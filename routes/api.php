@@ -1,40 +1,38 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\UserApiController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\Api\ProductApiController;
 use App\Http\Controllers\Api\CategoryApiController;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
+Route::get('/v1/welcome', function () {
+    return response()->json(['message' => 'Welcome to our API!']);
+});
 
-// User routes
-Route::get('/v1/users', [UserApiController::class, 'index']);
-Route::get('/v1/users/{id}', [UserApiController::class, 'show']);
-Route::post('/v1/users', [UserApiController::class, 'store']);
-Route::put('/v1/users/{id}', [UserApiController::class, 'update']);
-Route::delete('/v1/users/{id}', [UserApiController::class, 'destroy']);
-Route::post('/v1/login', [UserApiController::class, 'login']);
-Route::post('/v1/register', [UserApiController::class, 'register']);
+Route::post('/v1/register', [UserController::class, 'register']); //fonctionnel
+Route::post('/v1/login', [UserController::class, 'login']); //fonctionnel
 
-// Product routes
-Route::get('/v1/products', [ProductApiController::class, 'index']);
-Route::get('/v1/products/{id}', [ProductApiController::class, 'show']);
-Route::post('/v1/products', [ProductApiController::class, 'store']);
-Route::put('/v1/products/{id}', [ProductApiController::class, 'update']);
-Route::delete('/v1/products/{id}', [ProductApiController::class, 'destroy']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/v1/logout', [UserController::class, 'logout']); //fonctionnel
 
-// Category routes
-Route::get('/v1/categories', [CategoryApiController::class, 'index']);
-Route::get('/v1/categories/{id}', [CategoryApiController::class, 'show']);
-Route::post('/v1/categories', [CategoryApiController::class, 'store']);
-Route::put('/v1/categories/{id}', [CategoryApiController::class, 'update']);
-Route::delete('/v1/categories/{id}', [CategoryApiController::class, 'destroy']);
+    // User routes
+    Route::get('/v1/users', [UserController::class, 'index']); //fonctionnel
+    Route::get('/v1/users/{id}', [UserController::class, 'show']); //fonctionnel
+    Route::post('/v1/users', [UserController::class, 'register']); //fonctionnel
+    Route::put('/v1/users/{id}', [UserController::class, 'update']); //fonctionnel
+    Route::delete('/v1/users/{id}', [UserController::class, 'destroy']); //fonctionnel
+
+    // Product routes
+    Route::get('/v1/products', [ProductApiController::class, 'index']); //fonctionnel
+    Route::get('/v1/products/{id}', [ProductApiController::class, 'show']); //fonctionnel
+    Route::post('/v1/products', [ProductApiController::class, 'store']); //fonctionnel
+    Route::put('/v1/products/{id}', [ProductApiController::class, 'update']); //fonctionnel
+    Route::delete('/v1/products/{id}', [ProductApiController::class, 'destroy']); //fonctionnel
+
+    // Category routes
+    Route::get('/v1/categories', [CategoryApiController::class, 'index']); //fonctionnel
+    Route::get('/v1/categories/{id}', [CategoryApiController::class, 'show']); //fonctionnel
+    Route::post('/v1/categories', [CategoryApiController::class, 'store']); //fonctionnel
+    Route::put('/v1/categories/{id}', [CategoryApiController::class, 'update']); //fonctionnel
+    Route::delete('/v1/categories/{id}', [CategoryApiController::class, 'destroy']); //fonctionnel
+});

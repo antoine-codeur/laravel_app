@@ -1,4 +1,5 @@
 <?php
+
 namespace Database\Factories;
 
 use App\Models\Category;
@@ -11,7 +12,8 @@ class CategoryFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->word,
+            'title' => $this->faker->word,
+            'description' => $this->faker->sentence,
         ];
     }
 }

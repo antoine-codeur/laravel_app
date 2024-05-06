@@ -9,8 +9,11 @@ class ProductSeeder extends Seeder
 {
     public function run()
     {
-        Product::factory()
-            ->count(50)
-            ->create();
+        Product::create([
+            'name' => 'Test Product',
+            'description' => 'This is a test product',
+            'price' => 9.99,
+            'stock' => 100,
+        ]);
     }
 }
