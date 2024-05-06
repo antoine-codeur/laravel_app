@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,10 +13,8 @@ class Product extends Model
         'name',
         'description',
         'price',
+        'stock',
+        'categories',
+        'image',
     ];
-    
-    public function categories()
-    {
-        return $this->belongsToMany(Category::class);
-    }
 }

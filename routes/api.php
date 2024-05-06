@@ -1,36 +1,40 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\UserApiController;
+use App\Http\Controllers\Api\ProductApiController;
+use App\Http\Controllers\Api\CategoryApiController;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register API routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| is assigned the "api" middleware group. Enjoy building your API!
+|
+*/
 
-// Endpoints API:
+// User routes
+Route::get('/v1/users', [UserApiController::class, 'index']);
+Route::get('/v1/users/{id}', [UserApiController::class, 'show']);
+Route::post('/v1/users', [UserApiController::class, 'store']);
+Route::put('/v1/users/{id}', [UserApiController::class, 'update']);
+Route::delete('/v1/users/{id}', [UserApiController::class, 'destroy']);
+Route::post('/v1/login', [UserApiController::class, 'login']);
+Route::post('/v1/register', [UserApiController::class, 'register']);
 
-use App\Http\Controllers\WelcomeController;
-// Accès publique page de connexion v1 :
-Route::get('/v1/welcome', [WelcomeController::class, 'apiIndex']);
+// Product routes
+Route::get('/v1/products', [ProductApiController::class, 'index']);
+Route::get('/v1/products/{id}', [ProductApiController::class, 'show']);
+Route::post('/v1/products', [ProductApiController::class, 'store']);
+Route::put('/v1/products/{id}', [ProductApiController::class, 'update']);
+Route::delete('/v1/products/{id}', [ProductApiController::class, 'destroy']);
 
-use App\Http\Controllers\API\UserController;
-// Users v1 :
-Route::apiResource('v1/users', UserController::class); //revoir update
-
-
-Route::post('/v1/login', function () {
-    return 'Endpoint pour l\'authentification.';
-});
-
-Route::post('/v1/register', function () {
-    return 'Endpoint pour l\'inscription d\'un nouvel utilisateur.';
-});
-
-
-use App\Http\Controllers\API\ProductController;
-// Products v1 :
-Route::apiResource('v1/products', ProductController::class);
-
-use App\Http\Controllers\API\CategoryController;
-// Catégories v1 :
-Route::apiResource('v1/categories', CategoryController::class);
+// Category routes
+Route::get('/v1/categories', [CategoryApiController::class, 'index']);
+Route::get('/v1/categories/{id}', [CategoryApiController::class, 'show']);
+Route::post('/v1/categories', [CategoryApiController::class, 'store']);
+Route::put('/v1/categories/{id}', [CategoryApiController::class, 'update']);
+Route::delete('/v1/categories/{id}', [CategoryApiController::class, 'destroy']);
