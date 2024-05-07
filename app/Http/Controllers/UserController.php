@@ -82,19 +82,24 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|confirmed|min:8',
+            'device_name' => 'required',
+            'image' => 'nullable|string|max:2048',
         ]);
-
+    
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => bcrypt($request->password),
+            'password' => Hash::make($request->password),
+            'image' => $request->image,
         ]);
-
-        $token = $user->createToken($request->device_name);
-
-        return response()->json(['user' => $user, 'token' => $token->plainTextToken], 201);
+    
+        $token = $user->createToken($request->device_name)->plainTextToken;
+    
+        return response()->json([
+            'user' => $user,
+            'token' => $token,
+        ]);
     }
-
     /**
      * Log in an existing user.
      *

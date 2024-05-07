@@ -29,6 +29,7 @@ class User extends Authenticatable
         'password',
         'role',
         'profile_photo_path',
+        'image',
     ];
 
     /**
@@ -66,6 +67,6 @@ class User extends Authenticatable
     }
     public function getProfilePhotoUrlAttribute()
     {
-        return $this->attributes['profile_photo_url'] ?: 'https://ui-avatars.com/api/?name='.urlencode($this->name).'&color=7F9CF5&background=EBF4FF';
+        return $this->attributes['profile_photo_url'];
     }
 }
