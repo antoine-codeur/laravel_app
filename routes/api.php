@@ -11,6 +11,8 @@ Route::get('/v1/welcome', function () {
 
 Route::post('/v1/register', [UserController::class, 'register']); //fonctionnel
 Route::post('/v1/login', [UserController::class, 'login']); //fonctionnel
+Route::get('/v1/products', [ProductApiController::class, 'index']); //fonctionnel
+Route::get('/v1/products/{id}', [ProductApiController::class, 'show']); //fonctionnel
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/v1/logout', [UserController::class, 'logout']); //fonctionnel
@@ -23,8 +25,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/v1/users/{id}', [UserController::class, 'destroy']); //fonctionnel
 
     // Product routes
-    Route::get('/v1/products', [ProductApiController::class, 'index']); //fonctionnel
-    Route::get('/v1/products/{id}', [ProductApiController::class, 'show']); //fonctionnel
     Route::post('/v1/products', [ProductApiController::class, 'store']); //fonctionnel
     Route::put('/v1/products/{id}', [ProductApiController::class, 'update']); //fonctionnel
     Route::delete('/v1/products/{id}', [ProductApiController::class, 'destroy']); //fonctionnel
