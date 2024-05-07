@@ -16,5 +16,10 @@ class Product extends Model
         'stock',
         'categories',
         'image',
+        'category_id',
     ];
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }

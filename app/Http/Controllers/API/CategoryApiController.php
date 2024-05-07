@@ -31,7 +31,8 @@ class CategoryApiController extends Controller
      */
     public function show($id)
     {
-        return Category::find($id);
+        $category = Category::find($id);
+        return $category->load('products');
     }
 
     /**
