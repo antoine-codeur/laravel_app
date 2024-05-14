@@ -73,23 +73,21 @@ class ProductApiController extends Controller
             Log::info('Created product: ', $product->toArray());
 
             // Associate the categories with the product
-            $product->categories()->attach($validatedData['categories']);
+            if (isset($validatedData['categories'])) {
+                $categories = $validatedData['categories'];
+                if (is_array($categories)) {
+                    $product->categories()->sync($categories);
+                }
+            }
 
             // Load the categories for the product
             $product->load('categories');
 
-            // Limit the category details to id, title, and description
-            if ($product->categories) {
-                foreach ($product->categories as $category) {
-                    $category->makeHidden(['created_at', 'updated_at', 'pivot', 'description']);
-                }
-            }
+            return $product;
 
-            return response()->json($product, 201);
         } catch (\Exception $e) {
-            // Log the exception
-            Log::error('Error in store method: ', ['error' => $e->getMessage()]);
-            return response()->json(['error' => 'An error occurred while creating the product'], 500);
+            Log::error('Failed to create product: ', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Failed to create product'], 500);
         }
     }
 
