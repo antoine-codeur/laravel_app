@@ -60,11 +60,13 @@ class ProductApiController extends Controller
         $product->categories()->attach($validatedData['categories']);
 
         // Chargez les catégories pour le produit
-        $product->load('category');
-
+        $product->load('categories');
+        
         // Limitez les détails de la catégorie à id, title et description
-        foreach ($product->category as $category) {
-            $category->makeHidden(['created_at', 'updated_at', 'pivot', 'description']);
+        if ($product->categories) {
+            foreach ($product->categories as $category) {
+                $category->makeHidden(['created_at', 'updated_at', 'pivot', 'description']);
+            }
         }
 
         return response()->json($product, 201);
@@ -86,7 +88,7 @@ class ProductApiController extends Controller
         }
         $product->load('categories');
         foreach ($product->categories as $category) {
-            $category->makeHidden(['created_at', 'updated_at', 'pivot']);
+            $category->makeHidden(['created_at', 'updated_at', 'pivot', 'description']);
         }
         return $product;
     }
