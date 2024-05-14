@@ -14,7 +14,8 @@ class StoreProductRequest extends FormRequest
             'price' => 'required|numeric',
             'stock' => 'required|integer',
             'categories' => 'required|array',
-            'image' => 'nullable|image',
+            'categories.*' => 'exists:categories,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ];
     }
 }

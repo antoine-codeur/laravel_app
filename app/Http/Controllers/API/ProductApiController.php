@@ -7,6 +7,8 @@ use App\Models\Product;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class ProductApiController
@@ -49,27 +51,46 @@ class ProductApiController extends Controller
      */
     public function store(StoreProductRequest $request)
     {
-        $validatedData = $request->validated();
+        try {
+            $validatedData = $request->validated();
 
-        // Créez le produit sans les catégories
-        $productData = $validatedData;
-        unset($productData['categories']);
-        $product = Product::create($productData);
+            // Log the validated data
+            Log::info('Validated data: ', $validatedData);
 
-        // Associez les catégories au produit
-        $product->categories()->attach($validatedData['categories']);
+            // Create the product without the categories
+            $productData = $validatedData;
+            unset($productData['categories']);
 
-        // Chargez les catégories pour le produit
-        $product->load('categories');
-        
-        // Limitez les détails de la catégorie à id, title et description
-        if ($product->categories) {
-            foreach ($product->categories as $category) {
-                $category->makeHidden(['created_at', 'updated_at', 'pivot', 'description']);
+            // Handle the image
+            if ($request->hasFile('image')) {
+                $path = $request->file('image')->store('images', 'public');
+                $productData['image'] = $path;
             }
-        }
 
-        return response()->json($product, 201);
+            $product = Product::create($productData);
+
+            // Log the created product
+            Log::info('Created product: ', $product->toArray());
+
+            // Associate the categories with the product
+            $product->categories()->attach($validatedData['categories']);
+
+            // Load the categories for the product
+            $product->load('categories');
+
+            // Limit the category details to id, title, and description
+            if ($product->categories) {
+                foreach ($product->categories as $category) {
+                    $category->makeHidden(['created_at', 'updated_at', 'pivot', 'description']);
+                }
+            }
+
+            return response()->json($product, 201);
+        } catch (\Exception $e) {
+            // Log the exception
+            Log::error('Error in store method: ', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'An error occurred while creating the product'], 500);
+        }
     }
 
     /**
@@ -79,18 +100,38 @@ class ProductApiController extends Controller
      * @param  int  $id
      * @return \App\Models\Product
      */
-    public function update(StoreProductRequest $request, $id)
+    public function update(Request $request, $id)
     {
-        $product = Product::find($id);
-        $product->update($request->validated());
-        if ($request->has('categories')) {
-            $product->categories()->sync($request->categories);
+        try {
+            // Find the product
+            $product = Product::findOrFail($id);
+
+            // Check if a new image was uploaded
+            if ($request->hasFile('image')) {
+                // Delete the old image
+                if ($product->image) {
+                    Storage::disk('public')->delete($product->image);
+                }
+
+                // Store the new image
+                $product->image = $request->file('image')->store('images', 'public');
+            }
+
+            // Update other product attributes
+            $product->name = $request->input('name', $product->name);
+            $product->description = $request->input('description', $product->description);
+            $product->price = $request->input('price', $product->price);
+            $product->stock = $request->input('stock', $product->stock);
+
+            // Save the product
+            $product->save();
+
+            return response()->json($product, 200);
+        } catch (\Exception $e) {
+            // Log the exception
+            Log::error('Error in update method: ', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'An error occurred while updating the product'], 500);
         }
-        $product->load('categories');
-        foreach ($product->categories as $category) {
-            $category->makeHidden(['created_at', 'updated_at', 'pivot', 'description']);
-        }
-        return $product;
     }
     /**
      * Delete a product.
@@ -100,6 +141,23 @@ class ProductApiController extends Controller
      */
     public function destroy($id)
     {
-        return Product::destroy($id);
+        try {
+            // Find the product
+            $product = Product::findOrFail($id);
+
+            // Delete the image
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+
+            // Delete the product
+            $product->delete();
+
+            return response()->json(null, 204);
+        } catch (\Exception $e) {
+            // Log the exception
+            Log::error('Error in destroy method: ', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'An error occurred while deleting the product'], 500);
+        }
     }
 }
