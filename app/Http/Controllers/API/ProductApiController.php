@@ -22,7 +22,8 @@ class ProductApiController extends Controller
      */
     public function index()
     {
-        return Product::all();
+        $products = Product::with('categories')->get();
+        return $products;
     }
 
     /**
@@ -33,7 +34,11 @@ class ProductApiController extends Controller
      */
     public function show($id)
     {
-        return Product::find($id);
+        $product = Product::with('categories')->find($id);
+        foreach ($product->categories as $category) {
+            $category->makeHidden(['created_at', 'updated_at', 'description']);
+        }
+        return $product;
     }
 
     /**
@@ -44,23 +49,47 @@ class ProductApiController extends Controller
      */
     public function store(StoreProductRequest $request)
     {
-        return Product::create($request->validated());
+        $validatedData = $request->validated();
+
+        // Créez le produit sans les catégories
+        $productData = $validatedData;
+        unset($productData['categories']);
+        $product = Product::create($productData);
+
+        // Associez les catégories au produit
+        $product->categories()->attach($validatedData['categories']);
+
+        // Chargez les catégories pour le produit
+        $product->load('category');
+
+        // Limitez les détails de la catégorie à id, title et description
+        foreach ($product->category as $category) {
+            $category->makeHidden(['created_at', 'updated_at', 'pivot', 'description']);
+        }
+
+        return response()->json($product, 201);
     }
 
     /**
      * Update an existing product.
      *
-     * @param  \App\Http\Requests\UpdateProductRequest  $request
+     * @param  \App\Http\Requests\StoreProductRequest  $request
      * @param  int  $id
      * @return \App\Models\Product
      */
-    public function update(UpdateProductRequest $request, $id)
+    public function update(StoreProductRequest $request, $id)
     {
         $product = Product::find($id);
         $product->update($request->validated());
+        if ($request->has('categories')) {
+            $product->categories()->sync($request->categories);
+        }
+        $product->load('categories');
+        foreach ($product->categories as $category) {
+            $category->makeHidden(['created_at', 'updated_at', 'pivot']);
+        }
         return $product;
     }
-
     /**
      * Delete a product.
      *

@@ -13,7 +13,7 @@ class StoreProductRequest extends FormRequest
             'description' => 'nullable',
             'price' => 'required|numeric',
             'stock' => 'required|integer',
-            'categories' => 'nullable|array',
+            'categories' => 'required|array',
             'image' => 'nullable|image',
         ];
     }
